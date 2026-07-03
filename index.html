@@ -246,16 +246,12 @@
                     </button>
                 </div>
 
-                <button onclick="bukaModalEditProfil()" class="w-full bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm hover:bg-gray-50 transition-colors">
-                    <div class="flex items-center text-primary"><i class="fas fa-user text-soft bg-primary p-2 rounded-lg mr-4"></i> Edit Profil</div>
-                    <i class="fas fa-chevron-right text-gray-300"></i>
-                </button>
-
                 <div class="space-y-3 mb-6">
-                    <button class="w-full bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm">
+                    <button onclick="bukaModalEditProfil()" class="w-full bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm hover:bg-gray-50 transition-colors">
                         <div class="flex items-center text-primary"><i class="fas fa-user text-soft bg-primary p-2 rounded-lg mr-4"></i> Edit Profil</div>
                         <i class="fas fa-chevron-right text-gray-300"></i>
                     </button>
+                    
                     <button class="w-full bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm">
                         <div class="flex items-center text-primary"><i class="fas fa-bell text-soft bg-primary p-2 rounded-lg mr-4"></i> Notifikasi</div>
                         <div class="w-10 h-5 bg-primary rounded-full relative"><div class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></div></div>
@@ -983,18 +979,32 @@
                 });
             }
         };
-        // Fungsi untuk memicu modal edit foto
-        function bukaModalEditFoto() {
-            // Di sini kamu bisa tampilkan modal (misal: modal-edit-foto)
-            alert("Fitur edit foto akan muncul di sini!");
-            // Contoh: document.getElementById('modal-edit-foto').classList.remove('hidden');
-        }
 
-        // Fungsi untuk memicu modal edit profil (nama)
-        function bukaModalEditProfil() {
-            alert("Fitur edit profil akan muncul di sini!");
+            // Fungsi untuk buka modal
+    function bukaModalEditProfil() {
+        document.getElementById('modal-edit-profil').classList.remove('hidden');
+    }
+
+    // Fungsi untuk simpan nama (contoh sederhana)
+    function simpanNama() {
+        const namaBaru = document.getElementById('input-nama-baru').value;
+        if (namaBaru) {
+            document.getElementById('profile-name').innerText = namaBaru;
+            document.getElementById('modal-edit-profil').classList.add('hidden');
+            // Nanti kamu bisa tambahkan updateProfile(auth.currentUser, { displayName: namaBaru }) di sini
         }
+    }   
 
     </script>
+        <div id="modal-edit-profil" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-5 z-50">
+            <div class="bg-white p-6 rounded-2xl w-full max-w-sm">
+                <h3 class="font-bold text-lg mb-4">Edit Nama</h3>
+                <input type="text" id="input-nama-baru" class="w-full p-2 border rounded-lg mb-4" placeholder="Masukkan nama baru">
+                <div class="flex justify-end space-x-2">
+                    <button onclick="document.getElementById('modal-edit-profil').classList.add('hidden')" class="px-4 py-2 text-gray-500">Batal</button>
+                    <button onclick="simpanNama()" class="px-4 py-2 bg-primary text-white rounded-lg">Simpan</button>
+                </div>
+            </div>
+        </div>
 </body>
 </html>
