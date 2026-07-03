@@ -242,7 +242,7 @@
                 <div class="bg-white rounded-3xl p-6 flex flex-col items-center mb-6 shadow-sm">
                     <div class="relative mb-4">
                         <img id="profile-avatar" src="" class="w-24 h-24 rounded-full border-4 border-soft" alt="Profile">
-                        <div class="absolute bottom-0 right-0 bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center border-2 border-white shadow">
+                        <div onclick="openEditProfileModal()" class="absolute bottom-0 right-0 bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center border-2 border-white shadow cursor-pointer hover:bg-secondary transition">
                             <i class="fas fa-pen text-xs"></i>
                         </div>
                     </div>
@@ -251,7 +251,7 @@
                 </div>
 
                 <div class="space-y-3 mb-6">
-                    <button class="w-full bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm">
+                    <button onclick="openEditProfileModal()" class="w-full bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm hover:bg-gray-50 transition">
                         <div class="flex items-center text-primary"><i class="fas fa-user text-soft bg-primary p-2 rounded-lg mr-4"></i> Edit Profil</div>
                         <i class="fas fa-chevron-right text-gray-300"></i>
                     </button>
@@ -401,12 +401,33 @@
             </div>
         </div>
 
+        <!-- Edit Profile Modal -->
+        <div id="modal-profile-edit" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex items-end sm:items-center justify-center">
+            <div class="bg-white w-full sm:w-[440px] p-6 rounded-t-3xl sm:rounded-3xl fade-in">
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="font-bold text-xl text-primary">Edit Profil</h3>
+                    <button onclick="closeModal('modal-profile-edit')" class="text-gray-400 text-xl"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="form-profile-edit" onsubmit="submitProfileEdit(event)">
+                    <div class="mb-4">
+                        <label class="text-xs font-semibold text-gray-500">Nama Lengkap</label>
+                        <input type="text" id="edit-profile-name" required class="w-full bg-gray-50 p-3 rounded-xl border outline-none mt-1" placeholder="Nama Lengkap">
+                    </div>
+                    <div class="mb-6">
+                        <label class="text-xs font-semibold text-gray-500">URL Foto Profil (Opsional)</label>
+                        <input type="url" id="edit-profile-photo" class="w-full bg-gray-50 p-3 rounded-xl border outline-none mt-1" placeholder="https://...">
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-secondary transition">Simpan Perubahan</button>
+                </form>
+            </div>
+        </div>
+
     </div>
 
     <!-- Firebase SDK Modular V9 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Konfigurasi Firebase sesuai permintaan user
@@ -608,6 +629,14 @@
             document.getElementById('modal-savings').classList.remove('hidden');
         };
 
+        window.openEditProfileModal = () => {
+            if(window.appState.user) {
+                document.getElementById('edit-profile-name').value = window.appState.user.displayName || '';
+                document.getElementById('edit-profile-photo').value = window.appState.user.photoURL || '';
+                document.getElementById('modal-profile-edit').classList.remove('hidden');
+            }
+        };
+
         window.closeModal = (id) => {
             document.getElementById(id).classList.add('hidden');
         };
@@ -696,6 +725,36 @@
                 } catch (error) {
                     showToast('Gagal', error.message, 'danger');
                 }
+            }
+        };
+
+        window.submitProfileEdit = async (e) => {
+            e.preventDefault();
+            if(!window.appState.user) return;
+
+            const newName = document.getElementById('edit-profile-name').value;
+            const newPhoto = document.getElementById('edit-profile-photo').value;
+
+            try {
+                // Update profile di Firebase Auth
+                await updateProfile(window.appState.user, {
+                    displayName: newName,
+                    photoURL: newPhoto
+                });
+                
+                // Update tampilan UI secara langsung
+                document.getElementById('profile-name').innerText = newName;
+                document.getElementById('user-firstname').innerText = newName.split(' ')[0];
+                
+                if(newPhoto) {
+                    document.getElementById('profile-avatar').src = newPhoto;
+                    document.getElementById('user-avatar').src = newPhoto;
+                }
+
+                closeModal('modal-profile-edit');
+                showToast('Sukses!', 'Profil berhasil diperbarui.');
+            } catch (error) {
+                showToast('Gagal', error.message, 'danger');
             }
         };
 
